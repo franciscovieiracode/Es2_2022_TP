@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'pmd'
+    id 'jacoco'
+}
+
+group 'org.example'
+version '1.2.0'
+
+repositories {
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+    implementation name: 'OrgComm-1.0-SNAPSHOT'
+    implementation group: 'com.googlecode.json-simple', name: 'json-simple', version: '1.1.1'
+}
+
+test {
+    useJUnitPlatform()
+}
+
+def main = "Main"
+
+jar {
+    manifest {
+        attributes 'Main-Class': main
+    }
+}
+
+application {
+    mainClass = main
+}
+
+test {
+    finalizedBy jacocoTestReport // report is always generated after tests run
+}
+jacocoTestReport {
+    dependsOn test // tests are required to run before generating the report
+}
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDirectory = layout.buildDirectory.dir('customJacocoReportDir')
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = false
+        csv.required = false
+        html.outputLocation = layout.buildDirectory.dir('jacocoHtml')
+    }
+}
+
+pmd {
+    toolVersion = '6.32.0'
+    consoleOutput = true
+    ignoreFailures = true
+    ruleSetFiles = files("config\\pmd\\myRuleSet.xml")
+    ruleSets = []
+    rulesMinimumPriority=3
+}
